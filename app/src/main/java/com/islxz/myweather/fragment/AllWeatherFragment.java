@@ -3,6 +3,7 @@ package com.islxz.myweather.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,6 @@ import com.islxz.myweather.db.SelectCounty;
 
 import org.litepal.crud.DataSupport;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,7 +28,6 @@ public class AllWeatherFragment extends Fragment implements View.OnClickListener
     private RecyclerView mRecyclerView;
     private ImageView mBackImageView;
 
-    private List<View> mViewList;
     private List<SelectCounty> mSelectCountyList;
     private MyRecyclerViewAdapter mMyRecyclerViewAdapter;
 
@@ -38,27 +37,17 @@ public class AllWeatherFragment extends Fragment implements View.OnClickListener
             savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_all_weather, null);
         bindID(view);
-        mViewList = new ArrayList<>();
         initDate(inflater);
+        mMyRecyclerViewAdapter = new MyRecyclerViewAdapter();
+        LinearLayoutManager manager = new LinearLayoutManager(getContext());
+        manager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(manager);
         mRecyclerView.setAdapter(mMyRecyclerViewAdapter);
         return view;
     }
 
     private void initDate(LayoutInflater inflater) {
         mSelectCountyList = DataSupport.findAll(SelectCounty.class);
-        if (mSelectCountyList.size() > 0) {
-            mViewList.clear();
-            for (SelectCounty selectCounty : mSelectCountyList) {
-                View v = inflater.inflate(R.layout.aw_item, null);
-                TextView textView = v.findViewById(R.id.item_aw_tv_county_name);
-                textView.setText(selectCounty.getCountyName() + "市");
-                TextView textView1 = v.findViewById(R.id.item_aw_tv_info);
-                textView1.setText(selectCounty.getInfo());
-                TextView textView2 = v.findViewById(R.id.item_aw_tv_tmp);
-                textView2.setText(selectCounty.getTmp());
-                mViewList.add(v);
-            }
-        }
     }
 
     private void bindID(View view) {
@@ -80,22 +69,39 @@ public class AllWeatherFragment extends Fragment implements View.OnClickListener
     /**
      * RecyclerView适配器
      */
-    class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
+    class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter
             .ViewHolder> {
-
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(getContext()).inflate(R.layout.aw_item, null);
+            MyRecyclerViewAdapter.ViewHolder viewHolder = new MyRecyclerViewAdapter.ViewHolder(view);
+            return viewHolder;
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            holder.nameTV.setText(mSelectCountyList.get(position).getCountyName());
+            holder.infoTV.setText(mSelectCountyList.get(position).getInfo());
+            holder.tmpTV.setText(mSelectCountyList.get(position).getTmp());
         }
 
         @Override
         public int getItemCount() {
-            return mViewList.size();
+            return mSelectCountyList.size();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+
+            TextView nameTV;
+            TextView infoTV;
+            TextView tmpTV;
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+                nameTV = itemView.findViewById(R.id.item_aw_tv_county_name);
+                infoTV = itemView.findViewById(R.id.item_aw_tv_info);
+                tmpTV = itemView.findViewById(R.id.item_aw_tv_tmp);
+            }
         }
     }
 }
