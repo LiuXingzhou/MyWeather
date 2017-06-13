@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_title_size0">20sp</dimen>
+    <dimen name="text_title_size">22sp</dimen>
+    <dimen name="text_title_size2">25sp</dimen>
+    <dimen name="text_size1">15sp</dimen>
+    <dimen name="text_size2">45sp</dimen>
+    <dimen name="text_size3">40sp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+</resources>

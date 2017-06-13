@@ -1,0 +1,7 @@
+<litepal>
+    <dbname value="weather"/>
+    <version value="1"/>
+    <list>
+        <mapping class="com.islxz.weather.database.County"/>
+    </list>
+</litepal>

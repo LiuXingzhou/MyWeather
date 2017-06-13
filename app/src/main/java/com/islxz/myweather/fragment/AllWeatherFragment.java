@@ -20,6 +20,6 @@ public class AllWeatherFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle
             savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_all_weather, null);
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return view;
     }
 }
