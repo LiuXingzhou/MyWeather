@@ -11,17 +11,22 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.islxz.myweather.db.SelectCounty;
 import com.islxz.myweather.fragment.AllWeatherFragment;
 import com.islxz.myweather.fragment.SearchFragment;
 import com.islxz.myweather.fragment.WeatherFragment;
 import com.islxz.myweather.util.HttpUrl;
 import com.islxz.myweather.util.HttpUtil;
+import com.islxz.myweather.util.Utility;
+
+import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +37,12 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static final int LEVEL_WEATHER = 0;
+    private static final int LEVEL_ALL_WEATHER = 1;
+    private static final int LEVEL_SEARCH = 2;
+
+    private int curreentLevel;
 
     private FragmentManager mFragmentManager;
     private FragmentTransaction mFragmentTransaction;
@@ -51,7 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ImageView mBingPicIV;
 
-    private List<String> mSelectCityList;
+    private List<SelectCounty> mSelectCityList;
+    private List<String> mWeatherId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,35 +83,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mEditor = mSharedPreferences.edit();
 
+        mWeatherId = new ArrayList<String>();
+        mFragmentList = new ArrayList<>();
+
         ifFirstRun();
 
         String bingPic = mSharedPreferences.getString("bing_pic", null);
         if (bingPic != null) {
             Glide.with(this).load(bingPic).into(mBingPicIV);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        initCityData();
-        mFragmentList = new ArrayList<Fragment>();
-        for (int i = 0; i < mSelectCityList.size(); i++) {
-            WeatherFragment mWeatherFragment = new WeatherFragment();
-            mWeatherFragment.initData(mSelectCityList.get(i));
-            mFragmentList.add(mWeatherFragment);
-        }
-        mFragmentManager = getSupportFragmentManager();
-        mMyFragmentPagerAdapter = new MyFragmentPagerAdapter(mFragmentManager);
-        mViewPager.setAdapter(mMyFragmentPagerAdapter);
-        showThis("vp");
-    }
-
-    private void initCityData() {
-        mSelectCityList = new ArrayList<>();
-        mSelectCityList.add("CN101100202");
-        mSelectCityList.add("CN101100206");
-        mSelectCityList.add("CN101100207");
+        getFragment(LEVEL_WEATHER);
     }
 
     /**
@@ -122,6 +115,59 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else return;
     }
 
+    public void getFragment(int arg0) {
+        switch (arg0) {
+            case LEVEL_WEATHER:
+                curreentLevel = LEVEL_WEATHER;
+                mFloatingActionButton.setVisibility(View.VISIBLE);
+                mFloatingActionButton.setImageResource(R.drawable.ic_list);
+                showThis("vp");
+                initCityData();
+                mFragmentList.clear();
+                for (int i = 0; i < mWeatherId.size(); i++) {
+                    WeatherFragment mWeatherFragment = new WeatherFragment();
+                    mWeatherFragment.initData(mWeatherId.get(i));
+                    mFragmentList.add(mWeatherFragment);
+                }
+                mFragmentManager = getSupportFragmentManager();
+                if (mMyFragmentPagerAdapter == null) {
+                    mMyFragmentPagerAdapter = new MyFragmentPagerAdapter(mFragmentManager);
+                    mViewPager.setAdapter(mMyFragmentPagerAdapter);
+                } else {
+                    mMyFragmentPagerAdapter.notifyDataSetChanged();
+                }
+                break;
+            case LEVEL_ALL_WEATHER:
+                curreentLevel = LEVEL_ALL_WEATHER;
+                mFloatingActionButton.setVisibility(View.VISIBLE);
+                mFloatingActionButton.setImageResource(R.drawable.ic_add);
+                showThis("fl");
+                mFragmentTransaction = mFragmentManager.beginTransaction();
+                if (mAllWeatherFragment == null) {
+                    mAllWeatherFragment = new AllWeatherFragment();
+                }
+                mFragmentTransaction.replace(R.id.main_fl, mAllWeatherFragment);
+                mFragmentTransaction.commit();
+                View view = mAllWeatherFragment.getView();
+                break;
+            case LEVEL_SEARCH:
+                curreentLevel = LEVEL_SEARCH;
+                mFloatingActionButton.setVisibility(View.GONE);
+                break;
+        }
+    }
+
+    private void initCityData() {
+        Utility.addSelectCounty("阳高", "CN101100202", "晴", "18℃");
+        mSelectCityList = DataSupport.findAll(SelectCounty.class);
+        if (mSelectCityList.size() > 0) {
+            mWeatherId.clear();
+            for (SelectCounty selectCounty3 : mSelectCityList) {
+                mWeatherId.add(selectCounty3.getWeatherId());
+            }
+        }
+    }
+
     /**
      * 监听事件
      *
@@ -131,13 +177,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.main_fab:
-                showThis("fl");
-                mFragmentTransaction = mFragmentManager.beginTransaction();
-                if (mAllWeatherFragment == null) {
-                    mAllWeatherFragment = new AllWeatherFragment();
+                if (curreentLevel == LEVEL_WEATHER) {
+                    getFragment(LEVEL_ALL_WEATHER);
+                } else if (curreentLevel == LEVEL_ALL_WEATHER) {
+                    getFragment(LEVEL_SEARCH);
                 }
-                mFragmentTransaction.replace(R.id.main_fl, mAllWeatherFragment);
-                mFragmentTransaction.commit();
+                break;
+            case R.id.fm_aw_iv_back:
+                getFragment(LEVEL_WEATHER);
                 break;
         }
     }
@@ -175,6 +222,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public int getCount() {
             return mFragmentList.size();
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
         }
     }
 

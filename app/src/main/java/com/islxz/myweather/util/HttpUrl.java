@@ -12,12 +12,19 @@ public class HttpUrl {
      */
     public static final String CHINA_BASE_URL = "http://guolin.tech/api/china/";
     /*
+    和风天气
+     */
+    public static final String HE_WEATHER_KEY = "&key=0ca11df91fec4fa5bb7fea6d53aeb015";
+    /*
     获取天气信息：http://guolin.tech/api/weather?cityid=&key=
     cityid=市区id
     key=0ca11df91fec4fa5bb7fea6d53aeb015
      */
     public static final String WEATHER_URL_START = "http://guolin.tech/api/weather?cityid=";
-    public static final String WEATHER_URL_END = "&key=0ca11df91fec4fa5bb7fea6d53aeb015";
+    /*
+    城市查询：https://api.heweather.com/v5/search?city=yourcity&key=yourkey
+     */
+    public static final String CHINA_NAME_SEARCH_START = "https://api.heweather.com/v5/search?city=";
     /*
     获取必应每日一图的借口
      */

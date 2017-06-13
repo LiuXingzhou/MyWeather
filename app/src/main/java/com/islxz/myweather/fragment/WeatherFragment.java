@@ -117,7 +117,7 @@ public class WeatherFragment extends Fragment {
      */
     public void requestWeather(final String weatherId) {
         mSwipeRefreshLayout.setRefreshing(true);
-        String weatherUrl = HttpUrl.WEATHER_URL_START + weatherId + HttpUrl.WEATHER_URL_END;
+        String weatherUrl = HttpUrl.WEATHER_URL_START + weatherId + HttpUrl.HE_WEATHER_KEY;
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -135,6 +135,8 @@ public class WeatherFragment extends Fragment {
             public void onResponse(Call call, Response response) throws IOException {
                 final String responseText = response.body().string();
                 final Weather weather = Utility.handleWeatherResponse(responseText);
+                Utility.addSelectCounty(weather.basic.cityName, weather.basic.weatherId, weather.now
+                        .temperature, weather.now.more.info);
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
