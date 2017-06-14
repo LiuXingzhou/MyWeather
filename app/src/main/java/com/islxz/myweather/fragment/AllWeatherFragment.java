@@ -46,6 +46,16 @@ public class AllWeatherFragment extends Fragment implements View.OnClickListener
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshDate();
+    }
+
+    private void refreshDate() {
+
+    }
+
     private void initDate(LayoutInflater inflater) {
         mSelectCountyList = DataSupport.findAll(SelectCounty.class);
     }
@@ -82,7 +92,7 @@ public class AllWeatherFragment extends Fragment implements View.OnClickListener
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.nameTV.setText(mSelectCountyList.get(position).getCountyName());
             holder.infoTV.setText(mSelectCountyList.get(position).getInfo());
-            holder.tmpTV.setText(mSelectCountyList.get(position).getTmp());
+            holder.tmpTV.setText(mSelectCountyList.get(position).getTmp() + "℃");
         }
 
         @Override

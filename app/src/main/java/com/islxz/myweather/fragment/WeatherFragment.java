@@ -146,6 +146,8 @@ public class WeatherFragment extends Fragment {
                             editor.putString("weather", responseText);
                             editor.apply();
                             showWeatherInfo(weather);
+                            Utility.updateSelectCounty(weather.basic.cityName, weather.basic
+                                    .weatherId, weather.now.more.info, weather.now.temperature);
                         } else {
                             Toast.makeText(getContext(), "获取天气信息失败", Toast.LENGTH_SHORT).show();
                         }

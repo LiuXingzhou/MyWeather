@@ -1,5 +1,7 @@
 package com.islxz.myweather.util;
 
+import android.content.ContentValues;
+
 import com.google.gson.Gson;
 import com.islxz.myweather.db.SelectCounty;
 import com.islxz.myweather.gson.Weather;
@@ -9,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.crud.DataSupport;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,6 +44,7 @@ public class Utility {
     public static boolean updateSelectCounty(String CountyName, String WeatherId, String info, String
             tmp) {
         SelectCounty selectCounty = new SelectCounty();
+        selectCounty.setCountyName(CountyName);
         selectCounty.setInfo(info);
         selectCounty.setTmp(tmp);
         selectCounty.updateAll("countyName = ?", CountyName);
@@ -73,5 +77,30 @@ public class Utility {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /*
+    将返回的查询JSON数据解析
+     */
+    public static List<ContentValues> handleSearchResponse(String response) {
+        List<ContentValues> list = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather5");
+            list.clear();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                JSONObject basicObject = jsonObject1.getJSONObject("basic");
+                String city = basicObject.getString("city");
+                String id = basicObject.getString("id");
+                ContentValues values = new ContentValues();
+                values.put("city", city);
+                values.put("id", id);
+                list.add(values);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

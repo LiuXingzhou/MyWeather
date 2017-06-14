@@ -148,11 +148,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 mFragmentTransaction.replace(R.id.main_fl, mAllWeatherFragment);
                 mFragmentTransaction.commit();
-                View view = mAllWeatherFragment.getView();
                 break;
             case LEVEL_SEARCH:
                 curreentLevel = LEVEL_SEARCH;
-                mFloatingActionButton.setVisibility(View.GONE);
+                mFloatingActionButton.setVisibility(View.INVISIBLE);
+                mFragmentTransaction = mFragmentManager.beginTransaction();
+                if (mSearchFragment == null) {
+                    mSearchFragment = new SearchFragment();
+                }
+                mFragmentTransaction.replace(R.id.main_fl, mSearchFragment);
+                mFragmentTransaction.commit();
                 break;
         }
     }
